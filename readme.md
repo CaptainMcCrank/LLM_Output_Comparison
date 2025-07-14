@@ -141,25 +141,25 @@ pip install python-dotenv
 
 **Command line prompt:**
 ```bash
-python app.py "What is artificial intelligence?"
+python llm_compare.py "What is artificial intelligence?"
 ```
 
 **Interactive prompt:**
 ```bash
-python app.py
+python llm_compare.py
 # You'll be prompted to enter your question
 ```
 
 **From markdown file:**
 ```bash
-python app.py my-prompt.md
+python llm_compare.py my-prompt.md
 ```
 
 **Console output (no files):**
 ```bash
-python app.py "Explain quantum computing" --console
+python llm_compare.py "Explain quantum computing" --console
 # or
-python app.py query.md -c
+python llm_compare.py query.md -c
 ```
 
 ### Command Line Options
@@ -169,9 +169,9 @@ python app.py query.md -c
 
 ### Input Methods
 
-1. **Direct text**: `python app.py "Your question here"`
-2. **Markdown file**: `python app.py prompt.md`
-3. **Interactive**: `python app.py` (will prompt for input)
+1. **Direct text**: `python llm_compare.py "Your question here"`
+2. **Markdown file**: `python llm_compare.py prompt.md`
+3. **Interactive**: `python llm_compare.py` (will prompt for input)
 
 ### Output Files
 
@@ -201,7 +201,7 @@ echo "Compare Python and JavaScript for web development" > comparison.md
 
 2. **Run the comparison:**
 ```bash
-python app.py comparison.md
+python llm_compare.py comparison.md
 ```
 
 3. **View the results:**
@@ -213,7 +213,7 @@ The script will automatically:
 
 4. **Quick console test:**
 ```bash
-python app.py "What's 2+2?" --console
+python llm_compare.py "What's 2+2?" --console
 ```
 
 ## Troubleshooting
