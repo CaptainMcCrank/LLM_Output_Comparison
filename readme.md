@@ -1,6 +1,6 @@
-# LLM Comparison Tool
+# LLM Output Comparison Tool
 
-A Python script that simultaneously queries multiple Large Language Model (LLM) APIs with the same prompt and compares their responses. Currently supports ChatGPT (OpenAI), Claude (Anthropic), and Gemini (Google).
+A Python script that simultaneously queries multiple Large Language Model (LLM) APIs with the same prompt and compares their responses.  Saves responses as markdown files- and automatically presents them in a browser so you can stare and compare between browser tabs.  Currently supports ChatGPT (OpenAI), Claude (Anthropic), and Gemini (Google).
 
 ## Features
 
