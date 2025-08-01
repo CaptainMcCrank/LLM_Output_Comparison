@@ -1,16 +1,25 @@
 # LLM Output Comparison Tool
 
-A Python script that simultaneously queries multiple Large Language Model (LLM) APIs with the same prompt and compares their responses.  Saves responses as markdown files- and automatically presents them in a browser so you can stare and compare between browser tabs.  Currently supports ChatGPT (OpenAI), Claude (Anthropic), and Gemini (Google).
+A sophisticated Python tool for comparing responses across multiple Large Language Model (LLM) providers. Features advanced experimentation capabilities, comprehensive configuration management, and automated performance analysis. Supports ChatGPT (OpenAI), Claude (Anthropic), and Gemini (Google).
 
 ## Features
 
-- **Multi-Provider Support**: Query ChatGPT, Claude, and Gemini with a single command
-- **Flexible Input**: Accept prompts from command line, user input, or markdown files
-- **Rich Output Options**: Save responses to timestamped markdown files or display in console
-- **Automatic HTML Generation**: Convert markdown responses to HTML and open in browser
-- **Detailed Metadata**: Track response times, token usage, model versions, and more
-- **Visual Progress**: Animated status indicators and colored console output
-- **Error Handling**: Graceful timeout handling and clear error reporting
+### Core Functionality
+- **Multi-Provider Support**: Query ChatGPT, Claude, and Gemini simultaneously
+- **Flexible Input**: Command line prompts, markdown files, or interactive input
+- **Rich Output Options**: Timestamped markdown files with intelligent directory naming
+- **Automatic HTML Generation**: Convert responses to HTML and open in browser
+- **Comprehensive Metadata**: Response times, token usage, model versions, costs, and error tracking
+
+### Advanced Features
+- **Configuration Management**: JSON config files with presets (conservative, moderate, creative)
+- **Parameter Sweeps**: Automatically test multiple temperature/token configurations
+- **Batch Processing**: Process multiple prompts from files with performance tracking
+- **Config Comparisons**: Compare responses across different configuration settings
+- **Experiment Summaries**: Automated performance reports with token usage and success rates
+- **Parameter Validation**: Prevents invalid API calls with comprehensive validation
+- **Intelligent Error Handling**: Graceful failures with detailed error metadata
+- **Smart Directory Naming**: AI-generated descriptive directory names from prompt content
 
 ## Prerequisites
 
@@ -137,14 +146,21 @@ pip install python-dotenv
 
 ## Usage
 
-### Basic Commands
+### Prerequisites
+Always activate your virtual environment and load environment variables:
+```bash
+source venv/bin/activate
+set -a; source .env; set +a
+```
 
-**Command line prompt:**
+### Basic Usage
+
+**Simple prompt comparison:**
 ```bash
 python llm_compare.py "What is artificial intelligence?"
 ```
 
-**Interactive prompt:**
+**Interactive mode:**
 ```bash
 python llm_compare.py
 # You'll be prompted to enter your question
@@ -158,111 +174,305 @@ python llm_compare.py my-prompt.md
 **Console output (no files):**
 ```bash
 python llm_compare.py "Explain quantum computing" --console
-# or
-python llm_compare.py query.md -c
+```
+
+### Configuration Management
+
+**Using presets:**
+```bash
+# Conservative responses (temperature=0.3, max_tokens=800)
+python llm_compare.py "Write code" --preset conservative
+
+# Moderate responses (temperature=0.7, max_tokens=1000) - default
+python llm_compare.py "Write code" --preset moderate
+
+# Creative responses (temperature=1.0, max_tokens=1500)
+python llm_compare.py "Write a story" --preset creative
+```
+
+**Parameter overrides:**
+```bash
+# Override temperature for all models
+python llm_compare.py "Generate ideas" --temperature 0.8
+
+# Override max tokens and timeout
+python llm_compare.py "Long explanation" --max-tokens 2000 --timeout 180
+
+# Combine presets with overrides
+python llm_compare.py "Complex task" --preset conservative --max-tokens 1200
+```
+
+**Save/load custom configurations:**
+```bash
+# Save current config to file
+python llm_compare.py "test" --preset creative --save-config my-config.json
+
+# Load config from file
+python llm_compare.py "test" --config my-config.json
+```
+
+### Advanced Experimentation
+
+**Temperature sweeps:**
+```bash
+# Test temperatures from 0.3 to 1.0 in 3 steps (0.3, 0.65, 1.0)
+python llm_compare.py "Write a haiku" --sweep-temperature 0.3 1.0 --sweep-steps 3
+
+# Fine-grained sweep with 5 steps
+python llm_compare.py "Creative writing" --sweep-temperature 0.1 0.9 --sweep-steps 5
+```
+
+**Batch processing:**
+```bash
+# Create a file with multiple prompts (one per line)
+echo -e "What is AI?\nExplain machine learning\nDescribe neural networks" > prompts.txt
+
+# Process all prompts
+python llm_compare.py --batch-file prompts.txt
+
+# Batch with specific configuration
+python llm_compare.py --batch-file prompts.txt --preset creative
+```
+
+**Configuration comparisons:**
+```bash
+# Compare multiple config files
+python llm_compare.py "Compare responses" --compare-configs config1.json config2.json config3.json
+
+# Compare presets programmatically (save presets first)
+python llm_compare.py "test" --preset conservative --save-config conservative.json
+python llm_compare.py "test" --preset creative --save-config creative.json
+python llm_compare.py "Creative vs Conservative" --compare-configs conservative.json creative.json
+```
+
+**Combined experiments:**
+```bash
+# Temperature sweep with batch processing
+python llm_compare.py --sweep-temperature 0.2 0.8 --sweep-steps 4 --batch-file prompts.txt
 ```
 
 ### Command Line Options
 
-- `--console, -c`: Display responses in console instead of saving to files
-- `--help, -h`: Show help message
+#### Basic Options
+- `--console, -c`: Display responses in console instead of saving files
+- `--output-dir, -o DIR`: Specify output directory (default: current directory)
+- `--help, -h`: Show detailed help message
 
-### Input Methods
+#### Configuration Options
+- `--config CONFIG`: Path to JSON configuration file
+- `--preset {conservative,moderate,creative}`: Use built-in configuration preset
+- `--save-config FILE`: Save current configuration to JSON file
 
-1. **Direct text**: `python llm_compare.py "Your question here"`
-2. **Markdown file**: `python llm_compare.py prompt.md`
-3. **Interactive**: `python llm_compare.py` (will prompt for input)
+#### Parameter Overrides
+- `--temperature TEMP`: Override temperature for all models (0.0-2.0)
+- `--max-tokens TOKENS`: Override max tokens for all models (positive integer)
+- `--timeout SECONDS`: Override timeout for all models (minimum 1 second)
 
-### Output Files
+#### Experimentation Options
+- `--sweep-temperature MIN MAX`: Temperature range for parameter sweep
+- `--sweep-steps N`: Number of steps in parameter sweep (default: 3)
+- `--batch-file FILE`: File containing multiple prompts (one per line)
+- `--compare-configs FILE [FILE ...]`: Compare multiple configuration files
 
-When not using `--console`, the script creates:
+### Output Structure
 
-**Markdown files** (timestamped):
-- `ChatGPT_Response_YYYYMMDD_HHMMSS.md`
-- `Claude_Response_YYYYMMDD_HHMMSS.md`
-- `Gemini_Response_YYYYMMDD_HHMMSS.md`
+**Standard single comparison:**
+```
+llm_comparison_20250801_140352_your-prompt-summary/
+├── ChatGPT_Response.md
+├── Claude_Response.md
+├── Gemini_Response.md
+├── ChatGPT_Response.html
+├── Claude_Response.html
+└── Gemini_Response.html
+```
 
-**HTML files** (auto-generated and opened):
-- `ChatGPT_Response_YYYYMMDD_HHMMSS.html`
-- `Claude_Response_YYYYMMDD_HHMMSS.html`
-- `Gemini_Response_YYYYMMDD_HHMMSS.html`
+**Experimental runs (sweeps, batches, comparisons):**
+```
+llm_comparison_20250801_140352_temp_0.3_creative-writing/
+llm_comparison_20250801_140352_temp_0.6_creative-writing/
+llm_comparison_20250801_140352_temp_0.9_creative-writing/
+experiment_summary_20250801_140352.md
+```
 
-Each file includes:
-- Query metadata (model, timestamp, response time, tokens)
-- Source information (file path, MD5 hash, modification date)
+**Each response file includes:**
+- Success/error status with visual indicators (✅/❌)
+- Comprehensive metadata (model, provider, timestamps, performance)
+- Token usage and cost estimates (when available)
+- Source information with MD5 hashes for reproducibility
 - Full response content
 
-## Example Workflow
+## Example Workflows
 
-1. **Create a prompt file:**
+### Basic Comparison
 ```bash
-echo "Compare Python and JavaScript for web development" > comparison.md
+# Simple single comparison
+python llm_compare.py "Compare Python and JavaScript for web development"
 ```
+Results in a directory like `llm_comparison_20250801_140352_python-javascript-comparison/` with responses from all providers.
 
-2. **Run the comparison:**
+### Research with Different Configurations
 ```bash
-python llm_compare.py comparison.md
+# Test creative vs conservative approaches
+python llm_compare.py "Write a marketing slogan" --preset conservative --save-config conservative.json
+python llm_compare.py "Write a marketing slogan" --preset creative --save-config creative.json
+python llm_compare.py "Marketing slogan comparison" --compare-configs conservative.json creative.json
 ```
+Generates separate directories for each configuration plus an experiment summary.
 
-3. **View the results:**
-The script will automatically:
-- Query all three LLM providers
-- Save responses to timestamped markdown files
-- Convert to HTML using pandoc
-- Open HTML files in your default browser
-
-4. **Quick console test:**
+### Systematic Parameter Testing
 ```bash
-python llm_compare.py "What's 2+2?" --console
+# Test how temperature affects code generation
+python llm_compare.py "Write a Python function to sort a list" --sweep-temperature 0.1 0.9 --sweep-steps 5
 ```
+Creates 5 separate comparisons testing temperatures: 0.1, 0.3, 0.5, 0.7, 0.9
+
+### Batch Processing for Analysis
+```bash
+# Create test prompts
+echo -e "Explain recursion\nWhat is machine learning?\nWrite a sorting algorithm\nDescribe neural networks" > research-questions.txt
+
+# Process all with creative settings
+python llm_compare.py --batch-file research-questions.txt --preset creative
+```
+Generates individual comparisons for each prompt plus a comprehensive experiment summary.
+
+### Quality Assurance Testing
+```bash
+# Test consistency across multiple runs
+python llm_compare.py "Generate 5 creative product names" --sweep-temperature 0.8 0.8 --sweep-steps 3
+```
+Runs the same prompt 3 times with identical settings to test consistency.
 
 ## Troubleshooting
 
 ### Common Issues
 
+**"Configuration validation failed":**
+- Check parameter ranges: temperature (0.0-2.0), max_tokens (positive), timeout (≥1 second)
+- Use `--help` to see valid parameter ranges
+- Example fix: `--temperature 0.5` instead of `--temperature -1.0`
+
 **"ModuleNotFoundError":**
-- Ensure virtual environment is activated
-- Run `pip install -r requirements.txt`
+- Ensure virtual environment is activated: `source venv/bin/activate`
+- Install dependencies: `pip install -r requirements.txt`
 
-**"API Key not found":**
-- Check `.env` file exists and has correct keys
-- Verify environment variables are loaded: `echo $OPENAI_API_KEY`
+**"API Key not found" or authentication errors:**
+- Check `.env` file exists with correct API keys
+- Load environment variables: `set -a; source .env; set +a`
+- Verify variables are loaded: `echo $OPENAI_API_KEY`
+- Check API key permissions and quotas
 
-**"Pandoc not found":**
-- Install pandoc using system package manager
-- Script will still work but won't generate HTML
+**"Pandoc not found" warning:**
+- Install pandoc: `sudo apt install pandoc` (Ubuntu) or `brew install pandoc` (macOS)
+- Script continues without HTML generation if pandoc is missing
 
-**Long response times:**
-- Default timeout is 120 seconds
-- Check your internet connection
-- Some complex prompts may take longer
+**Slow performance or timeouts:**
+- Increase timeout: `--timeout 300` (5 minutes)
+- Check internet connection and API service status
+- Large batch files or parameter sweeps take longer
 
-**"Model not found" errors:**
-- Verify your API keys have access to the specified models
-- Check API quotas and billing status
+**Experiment summary not generated:**
+- Summaries only created for non-console experimental modes
+- Ensure you're not using `--console` flag with experiments
+- Check write permissions in output directory
+
+**"Failed to generate prompt summary" warnings:**
+- Claude API issues when generating directory names
+- Script continues with generic "prompt_summary" directory name
+- Not critical for functionality
 
 ### Debug Mode
 
 For verbose output, modify the script or add debug prints to troubleshoot API issues.
 
-## Customization
+## Advanced Configuration
 
-### Adding New Providers
-To add support for additional LLM providers:
+### Custom Configuration Files
 
-1. Install the provider's Python SDK
-2. Add configuration to the imports section
-3. Create a new `query_provider()` function following the existing pattern
-4. Add the provider to the `providers` list in `main()`
+Create sophisticated configurations beyond the built-in presets:
 
-### Modifying Models
-Edit the model names in each query function:
-- ChatGPT: Change `model = "gpt-4o-mini"`
-- Claude: Change `model = "claude-3-5-sonnet-20241022"`
-- Gemini: Change `model_name = "gemini-2.0-flash-exp"`
+```json
+{
+  "chatgpt": {
+    "model_name": "gpt-4o",
+    "temperature": 0.4,
+    "max_tokens": 2000,
+    "timeout": 180,
+    "enabled": true
+  },
+  "claude": {
+    "model_name": "claude-3-5-sonnet-20241022",
+    "temperature": 0.6,
+    "max_tokens": 1800,
+    "timeout": 200,
+    "enabled": true
+  },
+  "gemini": {
+    "model_name": "gemini-1.5-pro",
+    "temperature": 0.5,
+    "max_tokens": 1500,
+    "timeout": 150,
+    "enabled": false
+  },
+  "grok": {
+    "model_name": "llama-3.3-70b-versatile",
+    "temperature": 0.7,
+    "max_tokens": 1000,
+    "timeout": 120,
+    "enabled": false
+  },
+  "default_temperature": 0.5,
+  "default_max_tokens": 1500,
+  "default_timeout": 150,
+  "auto_open_html": false,
+  "generate_summary": true
+}
+```
 
-### Adjusting Parameters
-Modify temperature, max_tokens, or other parameters in each query function.
+### Experiment Design Patterns
+
+**A/B Testing:**
+```bash
+# Create two configurations for comparison
+python llm_compare.py "test" --preset conservative --save-config version-a.json
+python llm_compare.py "test" --preset creative --save-config version-b.json
+
+# Test across multiple prompts
+python llm_compare.py --batch-file test-prompts.txt --compare-configs version-a.json version-b.json
+```
+
+**Performance Benchmarking:**
+```bash
+# Test different models/providers systematically
+# Create configs with different model combinations
+python llm_compare.py "benchmark prompt" --sweep-temperature 0.3 0.7 --sweep-steps 3
+```
+
+**Quality Analysis:**
+```bash
+# Run multiple iterations to test consistency
+python llm_compare.py "Quality test prompt" --sweep-temperature 0.7 0.7 --sweep-steps 5
+```
+
+### Extending the Tool
+
+**Adding New Providers:**
+1. Install provider SDK: `pip install provider-package`
+2. Add to imports and configure client
+3. Create `query_newprovider()` function following existing pattern
+4. Add to ModelConfig and LLMCompareConfig classes
+5. Update providers list in comparison functions
+
+**Custom Metrics:**
+- Add fields to ResponseMetadata class
+- Implement cost calculation functions
+- Extend experiment_summary generation
+
+**Integration with Analysis Tools:**
+- Export data to CSV/JSON for analysis
+- Connect to visualization tools
+- Integrate with ML experiment tracking platforms
 
 ## Contributing
 
