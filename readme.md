@@ -1,6 +1,6 @@
 # LLM Output Comparison Tool
 
-A sophisticated Python tool for comparing responses across multiple Large Language Model (LLM) providers. Features advanced experimentation capabilities, comprehensive configuration management, and automated performance analysis. Supports ChatGPT (OpenAI), Claude (Anthropic), and Gemini (Google).
+A Python tool for comparing responses across multiple Large Language Model (LLM) providers. Features advanced experimentation capabilities, comprehensive configuration management, and automated performance analysis. Supports ChatGPT (OpenAI), Claude (Anthropic), and Gemini (Google).
 
 ## Features
 
